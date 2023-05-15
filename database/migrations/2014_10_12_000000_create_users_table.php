@@ -25,7 +25,10 @@ return new class extends Migration
             $table->string('province', 32)->nullable();
             // Definizione della colonna "age," di tipo smallInteger senza segno, con una lunghezza massima di 2 byte e non consentendo valori nulli
             // false perchè non vogliamo che si autoincrementi e true per dire che è unsigned (perchè un'età è sempre positiva)
-            $table->smallInteger('age', false, true);
+            $table->smallInteger('age', false, true)->nullable(); // AVEVAMO DIMENTICATO NULLABLE <----------------------------
+            // <---------------------------- <---------------------------- <----------------------------
+            // <---------------------------- <---------------------------- <----------------------------
+            // <---------------------------- <---------------------------- <----------------------------
         });
     }
 
