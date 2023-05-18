@@ -21,11 +21,11 @@ return new class extends Migration
             $table->timestamps();
             // Definizione della colonna "lastname", di tipo stringa, con una lunghezza massima di 32 caratteri e consentendo valori nulli // stessa cosa gli altri campi
             $table->string('lastname', 32)->nullable();
-            $table->string('phone', 16)->nullable();
+            $table->string('phone', 32)->nullable();
             $table->string('province', 32)->nullable();
             // Definizione della colonna "age," di tipo smallInteger senza segno, con una lunghezza massima di 2 byte e non consentendo valori nulli
             // false perchè non vogliamo che si autoincrementi e true per dire che è unsigned (perchè un'età è sempre positiva)
-            $table->smallInteger('age', false, true)->nullable(); // AVEVAMO DIMENTICATO NULLABLE <----------------------------
+            $table->smallInteger('age', false, true)->nullable();
         });
     }
 
