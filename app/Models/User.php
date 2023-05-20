@@ -8,9 +8,6 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-// Se abbiamo un Model che estende Authenticatable, la classe User automaticamente mappa la tabella User
-// In realtà basterebbe fare extends Model, ma in questo caso (per User), serve che estenda Authenticatable
-// Possiamo farla per esempio creando la classe Categories extends Model (possiamo accedere, inserire, modificare, eliminare dati)
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
@@ -24,6 +21,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
+        // AGGIUNGO GLI ALTRI CAMPI CHE SERVONO:
+        'age',
+        'province',
+        'lastname',
+        'phone'
     ];
 
     /**
@@ -31,6 +33,7 @@ class User extends Authenticatable
      *
      * @var array<int, string>
      */
+    // QUALUNQUE CAMPO ‘NON VOGLIAMO RITORNARE’, BASTA METTERLO NEL CAMPO '$hidden':
     protected $hidden = [
         'password',
         'remember_token',
@@ -41,6 +44,7 @@ class User extends Authenticatable
      *
      * @var array<string, string>
      */
+    // PER CASTARE IL ‘CASTARE’ EMAIL NEL FORMATO 'datetime':
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
