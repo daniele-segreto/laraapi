@@ -21,11 +21,11 @@ class User extends Authenticatable
         'name',
         'email',
         'password',
-        // AGGIUNGO GLI ALTRI CAMPI CHE SERVONO:
         'age',
         'province',
         'lastname',
-        'phone'
+        'phone',
+        'fiscalcode' // <============
     ];
 
     /**
