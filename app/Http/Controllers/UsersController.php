@@ -2,34 +2,29 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User; // IMPORTO USER (dovrebbe farlo automaticamente)
+use Exception;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UsersController extends Controller
 {
     // ELENCARE GLI UTENTI:
-    // -----------------------------------------------------
-    // => Metodo 1]
-    // public function index()
-    // {
-    //     return User::all(); // Per ritornare all'elenco degli utenti
-    // }
-    // -----------------------------------------------------
-    // => Metodo 2]
     public function index()
     {
-        $res = [ // Creazione di un array $res con due chiavi iniziali
-            'data' => [], // Chiave "data" inizializzata con un array vuoto
-            'message' => '' // Chiave "message" inizializzata con una stringa vuota
+        $res = [
+            'data' => [],
+            'message' => '',
+            'success' => true // l'avevo dimenticato
         ];
 
         try {
-            $res['data'] = User::all(); // Tentativo di ottenere tutti gli utenti dal modello User
-        } catch (\Exception $e) { // Cattura di un'eccezione di tipo generico (\Exception)
-            $res['message'] = $e->getMessage(); // Se viene generata un'eccezione, viene assegnato il messaggio di errore a $res['message']
+            $res['data'] = User::all();
+        } catch (Exception $e) {
+            $res['message'] = $e->getMessage();
+            $res['success'] = false; // l'avevo dimenticato
         }
 
-        return $res; // Restituisce l'array $res
+        return $res;
     }
 
 
@@ -46,37 +41,22 @@ class UsersController extends Controller
     }
 
     // MOSTRARE UN UTENTE/LEGGERE IL DETTAGLIO DI UN UTENTE:
-    // - è il metodo che viene utilizzato quando facciamo una chiamate get();
-    // - Laravel automaticamente, ci trasforma il parametro che passiamo '$user', in una istanza della classe 'User'
-    // -----------------------------------------------------
-    // => Metodo 1]
-    // public function show(User $user)
-    // {
-    //     return $user; // se verifichiamo su 'http://127.0.0.1:8000/users/1', avremo i dati dell'utente
-    // }
-    // -----------------------------------------------------
-    // => Metodo 2]
-    // public function show($user) // non (User $user)
-    // {
-    //     return User::findOrFail($user);
-    // }
-    // -----------------------------------------------------
-    // => Metodo 3] - Customizzando il messaggio di errore:
-    public function show($user) // Metodo "show" che accetta un parametro $user, non (User $user)
+    public function show($user)
     {
-        $res = [ // Creazione di un array $res con due chiavi iniziali
-            'data' => [], // Chiave "data" inizializzata con un array vuoto
-            'message' => '' // Chiave "message" inizializzata con una stringa vuota
+        $res = [
+            'data' => [],
+            'message' => '',
+            'success' => true // l'avevo dimenticato
         ];
 
         try {
-            $res['data'] = User::findOrFail($user); // Tentativo di trovare un'istanza di User corrispondente all'ID fornito
-        } catch (\Exception $e) { // Cattura di un'eccezione di tipo generico (\Exception)
-            $res['message'] = $e->getMessage(); // Se viene generata un'eccezione, viene assegnato il messaggio di errore a $res['message']
-            // $res['message'] = 'Messaggio di Errore'; // Nel caso in cui voglio customizzare l'errore
+            $res['data'] = User::findOrFail($user);
+        } catch (\Exception $e) {
+            $res['message'] = $e->getMessage();
+            $res['success'] = false; // l'avevo dimenticato
         }
 
-        return $res; // Restituisce l'array $res
+        return $res;
     }
 
     // QUANDO VOGLIAMO MOSTRARE UN FORM (CON DELLE CHIAMATE API NON SERVE, IL FORM SAREBBE LATO ANGULAR):
@@ -86,9 +66,35 @@ class UsersController extends Controller
     }
 
     // PER AGGIORNARE I DATI:
-    public function update(Request $request, User $user)
+    public function update(Request $request, int $user)
     {
-        //
+        // DAMMI SOLO I CAMPI CHE VOGLIO PRENDERE:
+        // $data = $request->only(['password', 'phone', 'province', 'age', 'lastname'])
+
+        // DAMMI TUTTI I CAMPI CHE VENGONO PASSATI, ECCETTO QUESTO DATI (NON VOGLIAMO SOVRASCRIVERE L'ID):
+        $data = $request->except(['id']);
+
+        // INIZIALIZZO I DATI DI DEFAULT:
+        $res = [
+            'data' => null,
+            'message' => '',
+            'success' => true
+        ];
+        // SE E' TUTTO OK:
+        try {
+            // IL NOSTRO UTENTE '$User' E' UGUALE AL NOSTRO MODELLO 'User', 'findOrFail()'VIENE UTILIZZATO PER CERCARE UN RECORD NEL DATABASE IN BASE AL SUO ID E RESTITUIRLO:
+            $User = User::findOrFail($user);
+            // CON UPDATE PASSO A '$User' I DATI CHE MI INTERESSANO (CIOE' I DATI CHE SONO DENTRO LA VARIABILE $data)
+            // LARAVEL MAPPERA' AUTOMATICAMENTE CHIAVI E VALORI CON L'AGGIORNAMENTO DEL RECORD
+            $User->update($data);
+            // METTIAMO NELLA RESPONSE, IN 'data', IL VALORE DELLA VARIABILE '$User', IN MODO DA AVERE I NUOVI VALORI DI 'User'
+            $res['data'] = $User;
+        // IN CASO DI ERRORE (SE LA RISORSA NON SI TROVA):
+        } catch (\Exception $e) {
+            $res['success'] = false; // la risposta sarà false
+            $res['message'] = $e->getMessage(); // avremo il messaggio di errore
+        }
+        return $res; // ritorniamo la variabile '$res' (la risposta)
     }
 
     // PER ELIMINARE L'UTENTE:

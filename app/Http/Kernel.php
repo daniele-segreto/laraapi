@@ -34,14 +34,15 @@ class Kernel extends HttpKernel
             \Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse::class,
             \Illuminate\Session\Middleware\StartSession::class,
             \Illuminate\View\Middleware\ShareErrorsFromSession::class,
-            \App\Http\Middleware\VerifyCsrfToken::class,
+            // SE NOI FACCIAMO UN'APPLICAZIONE LARAVEL COMPLETA, DOVE LA PARTE WEB E' DENTRO LO STESSO WEB SERVER, NOI POSSIAMO PASSARE NEL FORM DI RICHIESTA UN TOKEN, E LARAVEL VERIFICHERA' SEL QUEL TOKEN E' GIUSTO (SE DAL BROWSER NOI STIAMO MANDANDO QUEL TOKEN). SICCOME LO FAREMO CON UN API, QUESTO TOKEN NON VERRA' INVIATO, VERRA' INVIATO IN 'JSON WEB TOKEN' (IMPOSTEREMO QUESTA COSA PIU' AVANTI). PER PROVARLO VIA WEB, AL MOMENTO POSSIAMO COMMENTARE QUESTO 'Middleware'.
+            // \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
         ],
 
         'api' => [
             // \Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful::class,
             \Illuminate\Routing\Middleware\ThrottleRequests::class.':api',
-            \Illuminate\Routing\Middleware\SubstituteBindings::class,
+            \Illuminate\Routing\Middleware\SubstituteBindings::class, // <==========
         ],
     ];
 

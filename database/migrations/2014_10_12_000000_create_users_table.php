@@ -23,7 +23,7 @@ return new class extends Migration
             $table->string('phone', 32)->nullable();
             $table->string('province', 32)->nullable();
             $table->smallInteger('age', false, true)->nullable();
-            $table->string('fiscalcode', 16)->nullable(); // <============
+            $table->string('fiscalcode', 16)->nullable(); // lo avevamo dimenticato
         });
     }
 

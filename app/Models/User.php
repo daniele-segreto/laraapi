@@ -25,7 +25,7 @@ class User extends Authenticatable
         'province',
         'lastname',
         'phone',
-        'fiscalcode' // <============
+        'fiscalcode' // lo avevamo dimenticato
     ];
 
     /**
