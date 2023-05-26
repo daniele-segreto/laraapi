@@ -14,14 +14,14 @@ class UsersController extends Controller
         $res = [
             'data' => [],
             'message' => '',
-            'success' => true // l'avevo dimenticato
+            'success' => true
         ];
 
         try {
             $res['data'] = User::all();
         } catch (Exception $e) {
             $res['message'] = $e->getMessage();
-            $res['success'] = false; // l'avevo dimenticato
+            $res['success'] = false;
         }
 
         return $res;
@@ -34,10 +34,45 @@ class UsersController extends Controller
         //
     }
 
-    // SALVARE I DATI QUANDO CREIAMO UNA RISORSA:
+    // SALVARE I DATI QUANDO CREIAMO UNA RISORSA (UN NUOVO UTENTE):
     public function store(Request $request)
     {
-        //
+        // Inizializzazione della risposta di default
+        $res = [
+            'data' => [],
+            'message' => 'User Created',
+            'success' => true
+        ];
+        try {
+            // Prendi tutti i dati dalla richiesta, escludendo 'id' (perchè l'id viene autogenerato)
+            $userData = $request->except('id');
+
+            // Creazione di un nuovo utente
+            $user = new User();
+
+            // Si possono assegnare i valori manualmente se ci sono pochi dati
+            // $user->name = $request->input('');
+            // $user->phone = $request->input('phone');
+
+            // Altrimenti, utilizziamo 'fill' quando ci sono molti dati, passando l'array dei dati letti dalla '$request'
+            $user->fill($userData);
+
+            // Salvataggio dell'utente nel database
+            $user->save();
+
+            // Aggiornamento della risposta con i dati dell'utente salvato
+            $res = [
+                'data' => $user,
+            ];
+        // Gestione dell'eccezione se si verifica un errore
+        } catch (\Exception $e) {
+            [
+                'message' => $e->getMessage(),
+                'success' => false
+            ];
+        }
+        // Restituzione della risposta
+        return $res;
     }
 
     // MOSTRARE UN UTENTE/LEGGERE IL DETTAGLIO DI UN UTENTE:
@@ -46,14 +81,14 @@ class UsersController extends Controller
         $res = [
             'data' => [],
             'message' => '',
-            'success' => true // l'avevo dimenticato
+            'success' => true
         ];
 
         try {
             $res['data'] = User::findOrFail($user);
         } catch (\Exception $e) {
             $res['message'] = $e->getMessage();
-            $res['success'] = false; // l'avevo dimenticato
+            $res['success'] = false;
         }
 
         return $res;
@@ -68,33 +103,23 @@ class UsersController extends Controller
     // PER AGGIORNARE I DATI:
     public function update(Request $request, int $user)
     {
-        // DAMMI SOLO I CAMPI CHE VOGLIO PRENDERE:
-        // $data = $request->only(['password', 'phone', 'province', 'age', 'lastname'])
-
-        // DAMMI TUTTI I CAMPI CHE VENGONO PASSATI, ECCETTO QUESTO DATI (NON VOGLIAMO SOVRASCRIVERE L'ID):
         $data = $request->except(['id']);
 
-        // INIZIALIZZO I DATI DI DEFAULT:
         $res = [
             'data' => null,
             'message' => '',
             'success' => true
         ];
-        // SE E' TUTTO OK:
+
         try {
-            // IL NOSTRO UTENTE '$User' E' UGUALE AL NOSTRO MODELLO 'User', 'findOrFail()'VIENE UTILIZZATO PER CERCARE UN RECORD NEL DATABASE IN BASE AL SUO ID E RESTITUIRLO:
             $User = User::findOrFail($user);
-            // CON UPDATE PASSO A '$User' I DATI CHE MI INTERESSANO (CIOE' I DATI CHE SONO DENTRO LA VARIABILE $data)
-            // LARAVEL MAPPERA' AUTOMATICAMENTE CHIAVI E VALORI CON L'AGGIORNAMENTO DEL RECORD
             $User->update($data);
-            // METTIAMO NELLA RESPONSE, IN 'data', IL VALORE DELLA VARIABILE '$User', IN MODO DA AVERE I NUOVI VALORI DI 'User'
             $res['data'] = $User;
-        // IN CASO DI ERRORE (SE LA RISORSA NON SI TROVA):
         } catch (\Exception $e) {
-            $res['success'] = false; // la risposta sarà false
-            $res['message'] = $e->getMessage(); // avremo il messaggio di errore
+            $res['success'] = false;
+            $res['message'] = $e->getMessage();
         }
-        return $res; // ritorniamo la variabile '$res' (la risposta)
+        return $res;
     }
 
     // PER ELIMINARE L'UTENTE:
