@@ -125,6 +125,20 @@ class UsersController extends Controller
     // PER ELIMINARE L'UTENTE:
     public function destroy(User $user)
     {
-        //
+        $res = [
+            'data' => $user,
+            'message' => 'User ' . $user->id . ' delete', // Messaggio di eliminazione dell'utente (in php '.' fa la somma, non '+')
+            'success' => true // Flag di successo inizialmente impostato a true
+        ];
+        try {
+            $res['success'] = $user->delete(); // Tentativo di eliminazione dell'utente
+            if (!$res['success']) {
+                $res['message'] = 'Could not delete $user ' + $user->id; // Messaggio se l'eliminazione non ha avuto successo
+            }
+        } catch (\Exception $e) {
+            $res['success'] = false; // Impostazione del flag di successo a false in caso di eccezione
+            $res['message'] = $e->getMessage(); // Messaggio di errore dell'eccezione
+        }
+        return $res; // Restituisce l'array di risposta contenente i dettagli dell'operazione di eliminazione
     }
 }
