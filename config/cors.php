@@ -15,7 +15,8 @@ return [
     |
     */
 
-    'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    // 'paths' => ['api/*', 'sanctum/csrf-cookie'],
+    'paths' => ['*'], # Imposta tutti i percorsi come accessibili
 
     'allowed_methods' => ['*'], // accetta tutti  metodi
     // 'allowed_methods' => ['GET'], // accetta solo il metodo get
