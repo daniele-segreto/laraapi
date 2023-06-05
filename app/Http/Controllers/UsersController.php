@@ -12,21 +12,20 @@ class UsersController extends Controller
     public function index()
     {
         $res = [
-            'data' => [],
-            'message' => '',
-            'success' => true
+            'data' => [], // Inizializza l'array per contenere i dati degli utenti
+            'message' => '', // Messaggio di errore o successo
+            'success' => true // Flag per indicare se l'operazione è riuscita o meno
         ];
 
         try {
-            $res['data'] = User::all();
+            $res['data'] = User::orderBy('id','DESC')->get(); // Ottiene tutti gli utenti ordinati per ID in ordine decrescente
         } catch (Exception $e) {
-            $res['message'] = $e->getMessage();
-            $res['success'] = false;
+            $res['message'] = $e->getMessage(); // Imposta il messaggio di errore
+            $res['success'] = false; // Imposta il flag di successo a false
         }
 
-        return $res;
+        return $res; // Restituisce il risultato
     }
-
 
     // CREAZIONE DELLA RISORSA:
     public function create()
@@ -37,61 +36,49 @@ class UsersController extends Controller
     // SALVARE I DATI QUANDO CREIAMO UNA RISORSA (UN NUOVO UTENTE):
     public function store(Request $request)
     {
-        // Inizializzazione della risposta di default
         $res = [
-            'data' => [],
-            'message' => 'User Created',
-            'success' => true
+            'data' => [], // Inizializza l'array per contenere i dati dell'utente
+            'message' => 'User Created', // Messaggio di successo
+            'success' => true // Flag per indicare se l'operazione è riuscita o meno
         ];
         try {
-            // Prendi tutti i dati dalla richiesta, escludendo 'id' (perchè l'id viene autogenerato)
-            $userData = $request->except('id');
+            $userData = $request->except('id'); // Ottiene i dati dalla richiesta, escludendo l'ID
+            $userData['password'] =  $userData['password'] ?? 'dededede'; // Imposta una password di default se non fornita /////// <---
+            $userData['password'] =\Hash::make($userData['password'] ); // Hash della password
+            $user = new User(); // Crea una nuova istanza di User
+            /*  $user->name = $request->input('name');
+                $user->phone = $request->input('phone'); */
+            $user->fill($userData); // Assegna i dati all'istanza dell'utente
+            $user->save(); // Salva l'utente nel database
+            $res['data'] = $user; // Assegna l'utente creato al campo 'data' della risposta /////// <---
 
-            // Creazione di un nuovo utente
-            $user = new User();
-
-            // Si possono assegnare i valori manualmente se ci sono pochi dati
-            // $user->name = $request->input('');
-            // $user->phone = $request->input('phone');
-
-            // Altrimenti, utilizziamo 'fill' quando ci sono molti dati, passando l'array dei dati letti dalla '$request'
-            $user->fill($userData);
-
-            // Salvataggio dell'utente nel database
-            $user->save();
-
-            // Aggiornamento della risposta con i dati dell'utente salvato
-            $res = [
-                'data' => $user,
-            ];
-        // Gestione dell'eccezione se si verifica un errore
         } catch (\Exception $e) {
             [
-                'message' => $e->getMessage(),
-                'success' => false
+                'data' => [], // Nessun dato dell'utente /////// <---
+                'message' => $e->getMessage(), // Messaggio di errore
+                'success' => false // Imposta il flag di successo a false
             ];
         }
-        // Restituzione della risposta
-        return $res;
+        return $res; // Restituisce il risultato
     }
 
     // MOSTRARE UN UTENTE/LEGGERE IL DETTAGLIO DI UN UTENTE:
     public function show($user)
     {
         $res = [
-            'data' => [],
-            'message' => '',
-            'success' => true
+            'data' => [], // Inizializza l'array per contenere i dati dell'utente
+            'message' => '', // Messaggio di errore o successo
+            'success' => true // Flag per indicare se l'operazione è riuscita o meno
         ];
 
         try {
-            $res['data'] = User::findOrFail($user);
+            $res['data'] = User::findOrFail($user); // Trova l'utente per ID
         } catch (\Exception $e) {
-            $res['message'] = $e->getMessage();
-            $res['success'] = false;
+            $res['message'] = $e->getMessage(); // Imposta il messaggio di errore
+            $res['success'] = false; // Imposta il flag di successo a false
         }
 
-        return $res;
+        return $res; // Restituisce il risultato
     }
 
     // QUANDO VOGLIAMO MOSTRARE UN FORM (CON DELLE CHIAMATE API NON SERVE, IL FORM SAREBBE LATO ANGULAR):
@@ -103,42 +90,45 @@ class UsersController extends Controller
     // PER AGGIORNARE I DATI:
     public function update(Request $request, int $user)
     {
-        $data = $request->except(['id']);
+        $data = $request->except(['id']); // Ottiene i dati dalla richiesta, escludendo l'ID
 
         $res = [
-            'data' => null,
-            'message' => '',
-            'success' => true
+            'data' => null, // Dato dell'utente aggiornato
+            'message' => '', // Messaggio di errore o successo
+            'success' => true // Flag per indicare se l'operazione è riuscita o meno
         ];
 
         try {
-            $User = User::findOrFail($user);
-            $User->update($data);
-            $res['data'] = $User;
+            $data['password'] = 'dededede'; // Imposta una password di default ///////
+            $User = User::findOrFail($user); // Trova l'utente per ID
+            $data['password'] = \Hash::make($data['password']); // Hash della password ///////
+            $User->update($data); // Aggiorna i dati dell'utente
+            $res['data'] = $User; // Assegna l'utente aggiornato al campo 'data' della risposta
+            $res['message'] = 'User updated!'; // Messaggio di successo ///////
         } catch (\Exception $e) {
-            $res['success'] = false;
-            $res['message'] = $e->getMessage();
+            $res['success'] = false; // Imposta il flag di successo a false
+            $res['message'] = $e->getMessage(); // Messaggio di errore
         }
-        return $res;
+        return $res; // Restituisce il risultato
     }
 
     // PER ELIMINARE L'UTENTE:
     public function destroy(User $user)
     {
         $res = [
-            'data' => $user,
-            'message' => 'User ' . $user->id . ' delete', // Messaggio di eliminazione dell'utente (in php '.' fa la somma, non '+')
-            'success' => true // Flag di successo inizialmente impostato a true
+            'data' => $user, // Dati dell'utente da eliminare
+            'message' => 'User ' . $user->id . ' delete', // Messaggio di successo
+            'success' => true // Flag per indicare se l'operazione è riuscita o meno
         ];
         try {
-            $res['success'] = $user->delete(); // Tentativo di eliminazione dell'utente
+            $res['success'] = $user->delete(); // Elimina l'utente dal database
             if (!$res['success']) {
-                $res['message'] = 'Could not delete $user ' + $user->id; // Messaggio se l'eliminazione non ha avuto successo
+                $res['message'] = 'Could not delete $user ' + $user->id; // Messaggio di errore se non è stato possibile eliminare l'utente
             }
         } catch (\Exception $e) {
-            $res['success'] = false; // Impostazione del flag di successo a false in caso di eccezione
-            $res['message'] = $e->getMessage(); // Messaggio di errore dell'eccezione
+            $res['success'] = false; // Imposta il flag di successo a false
+            $res['message'] = $e->getMessage(); // Messaggio di errore
         }
-        return $res; // Restituisce l'array di risposta contenente i dettagli dell'operazione di eliminazione
+        return $res; // Restituisce il risultato
     }
 }
